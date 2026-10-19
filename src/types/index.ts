@@ -5,6 +5,8 @@ export interface Pack {
   name: string;
   totalThickness: number;
   sheetArea: number;
+  sheetLength?: number;
+  sheetHeight?: number;
 }
 
 export interface Bucket {
@@ -35,11 +37,13 @@ export interface Translations {
   resultPacks: (packs: number) => string;
   resultSheets: (sheets: number) => string;
   addCustomPack: string;
+  editCustomPack: string;
   profileNameHolder: string;
   packThicknessHolder: string;
   sheetLengthHolder: string;
   sheetWidthHolder: string;
   savePackBtn: string;
+  updatePackBtn: string;
   defaultStyrofoamName: string;
 
   enterAreaToCalc: string;
@@ -47,10 +51,13 @@ export interface Translations {
   bucketsCount: (count: number) => string;
   totalWeight: (kg: number) => string;
   addCustomBucket: string;
+  editCustomBucket: string;
   paintNameHolder: string;
   bucketWeightHolder: string;
   coverageHolder: string;
   saveBucketBtn: string;
+  updateBucketBtn: string;
+  cancelEditBtn: string;
   defaultPaintName: string;
   langToggle: string;
   eg5: string;

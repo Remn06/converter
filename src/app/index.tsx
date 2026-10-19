@@ -89,21 +89,13 @@ export default function App() {
         keyboardDismissMode="on-drag"
         style={{ flex: 1 }}
       >
-        <ScrollView
-          style={{ width, flex: 1 }}
-          keyboardShouldPersistTaps="handled"
-        >
+        <View style={{ width, flex: 1 }}>
           <StyrofoamScreen t={t} />
-          <View style={{ height: 50 }} />
-        </ScrollView>
+        </View>
 
-        <ScrollView
-          style={{ width, flex: 1 }}
-          keyboardShouldPersistTaps="handled"
-        >
+        <View style={{ width, flex: 1 }}>
           <PaintScreen t={t} />
-          <View style={{ height: 50 }} />
-        </ScrollView>
+        </View>
       </ScrollView>
     </View>
   );

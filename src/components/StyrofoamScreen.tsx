@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Button, Keyboard, Text, TextInput, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Button, Keyboard, ScrollView, Text, TextInput, View } from 'react-native';
 import styles from '@/app/styles';
 import PackList from '@/components/PackList';
 import { useStoredData } from '@/hooks/useStoredData';
@@ -23,6 +23,9 @@ interface StyrofoamScreenProps {
 }
 
 export default function StyrofoamScreen({ t }: StyrofoamScreenProps) {
+  const scrollViewRef = useRef<ScrollView>(null);
+  const nameInputRef = useRef<TextInput>(null);
+
   const [packs, setPacks] = useStoredData<Pack[]>(
     '@saved_packs',
     DEFAULT_PACKS,
@@ -32,6 +35,7 @@ export default function StyrofoamScreen({ t }: StyrofoamScreenProps) {
   const [sheetThickness, setSheetThickness] = useState('');
   const [sheetsNeeded, setSheetsNeeded] = useState('');
   const [areaNeeded, setAreaNeeded] = useState('');
+  const [editingPackId, setEditingPackId] = useState<string | null>(null);
   const [customName, setCustomName] = useState('');
   const [customPackThickness, setCustomPackThickness] = useState('');
   const [customLength, setCustomLength] = useState('');
@@ -39,26 +43,64 @@ export default function StyrofoamScreen({ t }: StyrofoamScreenProps) {
 
   const getPackName = (pack: Pack) => (pack.id === '1' ? t.defaultStyrofoamName : pack.name);
 
-  const addNewPack = () => {
+  const resetCustomForm = () => {
+    setEditingPackId(null);
+    setCustomName('');
+    setCustomPackThickness('');
+    setCustomLength('');
+    setCustomHeight('');
+  };
+
+  const startEditingPack = (pack: Pack) => {
+    setEditingPackId(pack.id);
+    setCustomName(pack.name);
+    setCustomPackThickness(pack.totalThickness.toString());
+    const length = pack.sheetLength ?? 100;
+    const height = pack.sheetHeight ?? Math.round((pack.sheetArea * 10000) / length);
+    setCustomLength(length.toString());
+    setCustomHeight(height.toString());
+
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+      nameInputRef.current?.focus();
+    }, 100);
+  };
+
+  const savePack = () => {
     const packThickness = parseFloat(customPackThickness);
     const length = parseFloat(customLength);
     const height = parseFloat(customHeight);
 
     if (packThickness > 0 && length > 0 && height > 0 && customName !== '') {
       const calculatedArea = (length * height) / 10000;
-      const newPack: Pack = {
-        id: Date.now().toString(),
-        name: customName,
-        totalThickness: packThickness,
-        sheetArea: calculatedArea,
-      };
-      const updatedPacks = [...packs, newPack];
-      setPacks(updatedPacks);
-      setSelectedPack(newPack);
-      setCustomName('');
-      setCustomPackThickness('');
-      setCustomLength('');
-      setCustomHeight('');
+
+      if (editingPackId) {
+        const updatedPack: Pack = {
+          id: editingPackId,
+          name: customName,
+          totalThickness: packThickness,
+          sheetArea: calculatedArea,
+          sheetLength: length,
+          sheetHeight: height,
+        };
+        const updatedPacks = packs.map((p) => (p.id === editingPackId ? updatedPack : p));
+        setPacks(updatedPacks);
+        setSelectedPack(updatedPack);
+      } else {
+        const newPack: Pack = {
+          id: Date.now().toString(),
+          name: customName,
+          totalThickness: packThickness,
+          sheetArea: calculatedArea,
+          sheetLength: length,
+          sheetHeight: height,
+        };
+        const updatedPacks = [...packs, newPack];
+        setPacks(updatedPacks);
+        setSelectedPack(newPack);
+      }
+
+      resetCustomForm();
       haptics.success();
       Keyboard.dismiss();
     } else {
@@ -71,6 +113,7 @@ export default function StyrofoamScreen({ t }: StyrofoamScreenProps) {
     const updatedPacks = packs.filter((pack) => pack.id !== idToDelete);
     setPacks(updatedPacks);
     if (selectedPack.id === idToDelete) setSelectedPack(updatedPacks[0]);
+    if (editingPackId === idToDelete) resetCustomForm();
   };
 
   const sheet = parseFloat(sheetThickness);
@@ -109,7 +152,11 @@ export default function StyrofoamScreen({ t }: StyrofoamScreenProps) {
   }, [styrofoamResultText, calculatedSheetsFromArea]);
 
   return (
-    <View>
+    <ScrollView
+      ref={scrollViewRef}
+      style={{ flex: 1 }}
+      keyboardShouldPersistTaps="handled"
+    >
       <View style={styles.card}>
         <Text style={styles.title}>{t.titleStyrofoam}</Text>
 
@@ -118,6 +165,7 @@ export default function StyrofoamScreen({ t }: StyrofoamScreenProps) {
           items={packs}
           selectedId={selectedPack.id}
           onSelect={setSelectedPack}
+          onEdit={startEditingPack}
           onDelete={deletePack}
           getLabel={(pack) => `${getPackName(pack)} (${pack.totalThickness}cm, ${pack.sheetArea}m²)`}
           isDeletable={(pack) => pack.id !== '1' && pack.id !== '2'}
@@ -188,8 +236,9 @@ export default function StyrofoamScreen({ t }: StyrofoamScreenProps) {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.title}>{t.addCustomPack}</Text>
+        <Text style={styles.title}>{editingPackId ? t.editCustomPack : t.addCustomPack}</Text>
         <TextInput
+          ref={nameInputRef}
           style={styles.input}
           placeholder={t.profileNameHolder}
           placeholderTextColor="#999"
@@ -220,8 +269,18 @@ export default function StyrofoamScreen({ t }: StyrofoamScreenProps) {
           value={customHeight}
           onChangeText={setCustomHeight}
         />
-        <Button title={t.savePackBtn} onPress={addNewPack} color="#007AFF" />
+        <Button
+          title={editingPackId ? t.updatePackBtn : t.savePackBtn}
+          onPress={savePack}
+          color="#007AFF"
+        />
+        {editingPackId && (
+          <View style={styles.cancelButtonWrapper}>
+            <Button title={t.cancelEditBtn} onPress={resetCustomForm} color="#888" />
+          </View>
+        )}
       </View>
-    </View>
+      <View style={{ height: 50 }} />
+    </ScrollView>
   );
 }

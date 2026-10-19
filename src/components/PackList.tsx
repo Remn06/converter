@@ -6,6 +6,7 @@ interface PackListProps<T extends { id: string }> {
   items: T[];
   selectedId: string;
   onSelect: (item: T) => void;
+  onEdit?: (item: T) => void;
   onDelete: (id: string) => void;
   getLabel: (item: T) => string;
   isDeletable: (item: T) => boolean;
@@ -15,6 +16,7 @@ export default function PackList<T extends { id: string }>({
   items,
   selectedId,
   onSelect,
+  onEdit,
   onDelete,
   getLabel,
   isDeletable,
@@ -36,6 +38,17 @@ export default function PackList<T extends { id: string }>({
                 {getLabel(item)}
               </Text>
             </TouchableOpacity>
+            {isDeletable(item) && onEdit && (
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => {
+                  haptics.selection();
+                  onEdit(item);
+                }}
+              >
+                <Text style={[styles.editButtonText, isSelected && styles.activeDeleteButtonText]}>✎</Text>
+              </TouchableOpacity>
+            )}
             {isDeletable(item) && (
               <TouchableOpacity
                 style={styles.deleteButton}

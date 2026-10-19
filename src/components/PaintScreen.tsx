@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Button, Keyboard, Text, TextInput, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Button, Keyboard, ScrollView, Text, TextInput, View } from 'react-native';
 import styles from '@/app/styles';
 import PackList from '@/components/PackList';
 import { useStoredData } from '@/hooks/useStoredData';
@@ -18,9 +18,13 @@ interface PaintScreenProps {
 }
 
 export default function PaintScreen({ t }: PaintScreenProps) {
+  const scrollViewRef = useRef<ScrollView>(null);
+  const nameInputRef = useRef<TextInput>(null);
+
   const [buckets, setBuckets] = useStoredData<Bucket[]>('@saved_buckets', [DEFAULT_BUCKET]);
   const [selectedBucket, setSelectedBucket] = useState<Bucket>(DEFAULT_BUCKET);
   const [paintAreaNeeded, setPaintAreaNeeded] = useState('');
+  const [editingBucketId, setEditingBucketId] = useState<string | null>(null);
   const [customBucketName, setCustomBucketName] = useState('');
   const [customBucketKg, setCustomBucketKg] = useState('');
   const [customBucketCoverage, setCustomBucketCoverage] = useState('');
@@ -28,23 +32,55 @@ export default function PaintScreen({ t }: PaintScreenProps) {
   const getBucketName = (bucket: Bucket) =>
     bucket.id === 'p1' ? t.defaultPaintName : bucket.name;
 
-  const addNewBucket = () => {
+  const resetBucketForm = () => {
+    setEditingBucketId(null);
+    setCustomBucketName('');
+    setCustomBucketKg('');
+    setCustomBucketCoverage('');
+  };
+
+  const startEditingBucket = (bucket: Bucket) => {
+    setEditingBucketId(bucket.id);
+    setCustomBucketName(bucket.name);
+    setCustomBucketKg(bucket.kg.toString());
+    setCustomBucketCoverage(bucket.coverageArea.toString());
+
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+      nameInputRef.current?.focus();
+    }, 100);
+  };
+
+  const saveBucket = () => {
     const kg = parseFloat(customBucketKg);
     const coverage = parseFloat(customBucketCoverage);
 
     if (kg > 0 && coverage > 0 && customBucketName !== '') {
-      const newBucket: Bucket = {
-        id: Date.now().toString(),
-        name: customBucketName,
-        kg,
-        coverageArea: coverage,
-      };
-      const updatedBuckets = [...buckets, newBucket];
-      setBuckets(updatedBuckets);
-      setSelectedBucket(newBucket);
-      setCustomBucketName('');
-      setCustomBucketKg('');
-      setCustomBucketCoverage('');
+      if (editingBucketId) {
+        const updatedBucket: Bucket = {
+          id: editingBucketId,
+          name: customBucketName,
+          kg,
+          coverageArea: coverage,
+        };
+        const updatedBuckets = buckets.map((b) =>
+          b.id === editingBucketId ? updatedBucket : b
+        );
+        setBuckets(updatedBuckets);
+        setSelectedBucket(updatedBucket);
+      } else {
+        const newBucket: Bucket = {
+          id: Date.now().toString(),
+          name: customBucketName,
+          kg,
+          coverageArea: coverage,
+        };
+        const updatedBuckets = [...buckets, newBucket];
+        setBuckets(updatedBuckets);
+        setSelectedBucket(newBucket);
+      }
+
+      resetBucketForm();
       haptics.success();
       Keyboard.dismiss();
     } else {
@@ -57,6 +93,7 @@ export default function PaintScreen({ t }: PaintScreenProps) {
     const updatedBuckets = buckets.filter((bucket) => bucket.id !== idToDelete);
     setBuckets(updatedBuckets);
     if (selectedBucket.id === idToDelete) setSelectedBucket(updatedBuckets[0]);
+    if (editingBucketId === idToDelete) resetBucketForm();
   };
 
   const paintArea = parseFloat(paintAreaNeeded);
@@ -75,7 +112,11 @@ export default function PaintScreen({ t }: PaintScreenProps) {
   }, [bucketsNeeded]);
 
   return (
-    <View>
+    <ScrollView
+      ref={scrollViewRef}
+      style={{ flex: 1 }}
+      keyboardShouldPersistTaps="handled"
+    >
       <View style={styles.card}>
         <Text style={styles.title}>{t.titlePaint}</Text>
 
@@ -84,6 +125,7 @@ export default function PaintScreen({ t }: PaintScreenProps) {
           items={buckets}
           selectedId={selectedBucket.id}
           onSelect={setSelectedBucket}
+          onEdit={startEditingBucket}
           onDelete={deleteBucket}
           getLabel={(bucket) =>
             `${getBucketName(bucket)} (${bucket.coverageArea}m² / ${bucket.kg}kg)`
@@ -115,8 +157,11 @@ export default function PaintScreen({ t }: PaintScreenProps) {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.title}>{t.addCustomBucket}</Text>
+        <Text style={styles.title}>
+          {editingBucketId ? t.editCustomBucket : t.addCustomBucket}
+        </Text>
         <TextInput
+          ref={nameInputRef}
           style={styles.input}
           placeholder={t.paintNameHolder}
           placeholderTextColor="#999"
@@ -139,8 +184,18 @@ export default function PaintScreen({ t }: PaintScreenProps) {
           value={customBucketCoverage}
           onChangeText={setCustomBucketCoverage}
         />
-        <Button title={t.saveBucketBtn} onPress={addNewBucket} color="#007AFF" />
+        <Button
+          title={editingBucketId ? t.updateBucketBtn : t.saveBucketBtn}
+          onPress={saveBucket}
+          color="#007AFF"
+        />
+        {editingBucketId && (
+          <View style={styles.cancelButtonWrapper}>
+            <Button title={t.cancelEditBtn} onPress={resetBucketForm} color="#888" />
+          </View>
+        )}
       </View>
-    </View>
+      <View style={{ height: 50 }} />
+    </ScrollView>
   );
 }
