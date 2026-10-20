@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Button, Keyboard, ScrollView, Text, TextInput, View } from 'react-native';
+import { Button, Keyboard, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import styles from '@/app/styles';
 import PackList from '@/components/PackList';
 import { useStoredData } from '@/hooks/useStoredData';
@@ -20,9 +20,10 @@ const mergeWithDefaultPacks = (parsedPacks: Pack[]): Pack[] => {
 
 interface StyrofoamScreenProps {
   t: Translations;
+  onAddToOrder?: (lineItem: string) => void;
 }
 
-export default function StyrofoamScreen({ t }: StyrofoamScreenProps) {
+export default function StyrofoamScreen({ t, onAddToOrder }: StyrofoamScreenProps) {
   const scrollViewRef = useRef<ScrollView>(null);
   const nameInputRef = useRef<TextInput>(null);
 
@@ -230,6 +231,17 @@ export default function StyrofoamScreen({ t }: StyrofoamScreenProps) {
                   : t.youNeedExactly}
               </Text>
               <Text style={styles.resultSecondary}>{styrofoamResultText}</Text>
+              {onAddToOrder && (
+                <TouchableOpacity
+                  style={styles.addToOrderBtn}
+                  onPress={() => {
+                    haptics.success();
+                    onAddToOrder(`${getPackName(selectedPack)} (${sheet}cm) — ${styrofoamResultText}`);
+                  }}
+                >
+                  <Text style={styles.addToOrderBtnText}>{t.addToOrderBtn}</Text>
+                </TouchableOpacity>
+              )}
             </View>
           )}
         </View>

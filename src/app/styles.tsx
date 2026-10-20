@@ -2,10 +2,13 @@ import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f4f4f4', paddingTop: 40 },
-  
-  headerRow: { flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 15, paddingBottom: 10 },
+
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 15, paddingBottom: 10 },
+  headerRowRightOnly: { justifyContent: 'flex-end' },
   langButton: { paddingVertical: 6, paddingHorizontal: 12, backgroundColor: '#e6f2ff', borderRadius: 8, borderWidth: 1, borderColor: '#007AFF' },
   langButtonText: { color: '#007AFF', fontWeight: 'bold', fontSize: 14 },
+  roleSwitchButton: { paddingVertical: 6, paddingHorizontal: 12, backgroundColor: '#fff', borderRadius: 8, borderWidth: 1, borderColor: '#ccc' },
+  roleSwitchButtonText: { color: '#444', fontWeight: '600', fontSize: 14 },
 
   tabContainer: { flexDirection: 'row', backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#ddd', elevation: 2 },
   tabButton: { flex: 1, paddingVertical: 15, alignItems: 'center' },
@@ -13,12 +16,19 @@ export default StyleSheet.create({
   tabText: { fontSize: 16, fontWeight: '600', color: '#666' },
   activeTabText: { color: '#007AFF' },
 
+  employeeNavContainer: { flexDirection: 'row', backgroundColor: '#e8eef5', marginHorizontal: 15, marginBottom: 8, borderRadius: 10, padding: 4 },
+  employeeNavBtn: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8 },
+  activeEmployeeNavBtn: { backgroundColor: '#007AFF', shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 3, elevation: 2 },
+  employeeNavText: { fontSize: 15, fontWeight: '600', color: '#4a5568' },
+  activeEmployeeNavText: { color: '#fff' },
+
   card: { backgroundColor: '#fff', padding: 20, margin: 15, borderRadius: 12, marginBottom: 5, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5, elevation: 3 },
   title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
+  subtitle: { fontSize: 15, color: '#666', marginBottom: 24, textAlign: 'center' },
   label: { fontSize: 16, marginBottom: 8, fontWeight: '600' },
-  
+
   input: { borderWidth: 1, borderColor: '#ddd', padding: 12, marginBottom: 15, borderRadius: 8, fontSize: 16, backgroundColor: '#fafafa', color: '#000' },
-  
+
   packList: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 20 },
   packWrapper: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#007AFF', borderRadius: 20, marginRight: 10, marginBottom: 10, overflow: 'hidden' },
   activePackWrapper: { backgroundColor: '#007AFF' },
@@ -36,5 +46,53 @@ export default StyleSheet.create({
   resultPrimary: { fontSize: 20, fontWeight: 'bold', color: '#007AFF', marginBottom: 10, textAlign: 'center' },
   packsResultBox: { backgroundColor: '#e6f2ff', padding: 15, borderRadius: 10, width: '100%', alignItems: 'center', marginTop: 10 },
   resultSecondary: { fontSize: 22, fontWeight: 'bold', color: '#005bb5', textAlign: 'center' },
-  resultTertiary: { fontSize: 14, color: '#666', marginBottom: 5, textAlign: 'center' }
+  resultTertiary: { fontSize: 14, color: '#666', marginBottom: 5, textAlign: 'center' },
+
+  // Role Selection & Login
+  centeredContent: { flex: 1, justifyContent: 'center', paddingBottom: 40 },
+  roleOptionCard: { borderWidth: 2, borderColor: '#007AFF', borderRadius: 12, padding: 18, marginBottom: 16, backgroundColor: '#f8fbff' },
+  roleOptionCardSecondary: { borderColor: '#2b6cb0', backgroundColor: '#fff' },
+  roleOptionTitle: { fontSize: 18, fontWeight: 'bold', color: '#007AFF', marginBottom: 6 },
+  roleOptionDesc: { fontSize: 14, color: '#555' },
+  primaryButton: { backgroundColor: '#007AFF', paddingVertical: 14, borderRadius: 10, alignItems: 'center', marginTop: 6 },
+  primaryButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  secondaryButton: { backgroundColor: '#f0f0f0', paddingVertical: 12, borderRadius: 10, alignItems: 'center', marginTop: 10 },
+  secondaryButtonText: { color: '#444', fontSize: 15, fontWeight: '600' },
+  errorText: { color: '#d9534f', fontSize: 14, fontWeight: '600', marginBottom: 12, textAlign: 'center' },
+  hintBox: { backgroundColor: '#f0f4f8', padding: 10, borderRadius: 8, marginBottom: 16, alignItems: 'center' },
+  hintText: { color: '#555', fontSize: 13 },
+
+  // Active Orders
+  filterRow: { flexDirection: 'row', marginBottom: 16, gap: 8 },
+  filterPill: { flex: 1, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: '#007AFF', alignItems: 'center', backgroundColor: '#fff' },
+  activeFilterPill: { backgroundColor: '#007AFF' },
+  filterPillText: { color: '#007AFF', fontWeight: '600', fontSize: 13 },
+  activeFilterPillText: { color: '#fff' },
+  orderCard: { backgroundColor: '#fafafa', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 10, padding: 15, marginBottom: 14 },
+  orderHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  orderNumber: { fontSize: 17, fontWeight: 'bold', color: '#1a202c' },
+  orderDate: { fontSize: 12, color: '#718096', marginTop: 2 },
+  statusBadge: { paddingVertical: 4, paddingHorizontal: 10, borderRadius: 12 },
+  statusBadgePending: { backgroundColor: '#fef3c7' },
+  statusBadgeInProgress: { backgroundColor: '#dbeafe' },
+  statusBadgeCompleted: { backgroundColor: '#d1fae5' },
+  statusBadgeText: { fontSize: 12, fontWeight: 'bold' },
+  statusTextPending: { color: '#b45309' },
+  statusTextInProgress: { color: '#1d4ed8' },
+  statusTextCompleted: { color: '#047857' },
+  orderDetailRow: { marginBottom: 6 },
+  orderDetailLabel: { fontSize: 13, fontWeight: '600', color: '#4a5568' },
+  orderDetailValue: { fontSize: 15, color: '#1a202c', marginTop: 2 },
+  orderActionBtn: { marginTop: 10, paddingVertical: 10, borderRadius: 8, alignItems: 'center', backgroundColor: '#007AFF' },
+  orderActionBtnComplete: { backgroundColor: '#10b981' },
+  orderActionBtnReopen: { backgroundColor: '#6b7280' },
+  orderActionBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
+  emptyOrdersText: { textAlign: 'center', color: '#718096', fontSize: 15, paddingVertical: 24 },
+
+  // Make an Order
+  addToOrderBtn: { marginTop: 12, backgroundColor: '#007AFF', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20 },
+  addToOrderBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
+  multilineInput: { minHeight: 100, textAlignVertical: 'top' },
+  successBanner: { backgroundColor: '#d1fae5', borderWidth: 1, borderColor: '#10b981', borderRadius: 8, padding: 12, marginBottom: 15, alignItems: 'center' },
+  successBannerText: { color: '#047857', fontWeight: '600', fontSize: 14, textAlign: 'center' },
 });

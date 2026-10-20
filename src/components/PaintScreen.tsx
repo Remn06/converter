@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Button, Keyboard, ScrollView, Text, TextInput, View } from 'react-native';
+import { Button, Keyboard, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import styles from '@/app/styles';
 import PackList from '@/components/PackList';
 import { useStoredData } from '@/hooks/useStoredData';
@@ -15,9 +15,10 @@ const DEFAULT_BUCKET: Bucket = {
 
 interface PaintScreenProps {
   t: Translations;
+  onAddToOrder?: (lineItem: string) => void;
 }
 
-export default function PaintScreen({ t }: PaintScreenProps) {
+export default function PaintScreen({ t, onAddToOrder }: PaintScreenProps) {
   const scrollViewRef = useRef<ScrollView>(null);
   const nameInputRef = useRef<TextInput>(null);
 
@@ -149,6 +150,19 @@ export default function PaintScreen({ t }: PaintScreenProps) {
               <Text style={styles.resultTertiary}>{t.toCoverBuy(paintAreaNeeded)}</Text>
               <Text style={styles.resultSecondary}>{t.bucketsCount(bucketsNeeded)}</Text>
               <Text style={styles.resultTertiary}>{t.totalWeight(totalKgNeeded)}</Text>
+              {onAddToOrder && (
+                <TouchableOpacity
+                  style={styles.addToOrderBtn}
+                  onPress={() => {
+                    haptics.success();
+                    onAddToOrder(
+                      `${getBucketName(selectedBucket)} — ${t.bucketsCount(bucketsNeeded)} ${t.totalWeight(totalKgNeeded)}`
+                    );
+                  }}
+                >
+                  <Text style={styles.addToOrderBtnText}>{t.addToOrderBtn}</Text>
+                </TouchableOpacity>
+              )}
             </View>
           ) : (
             <Text style={styles.resultPrimary}>{t.enterAreaToCalc}</Text>
